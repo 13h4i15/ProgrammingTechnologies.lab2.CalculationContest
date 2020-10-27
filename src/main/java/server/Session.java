@@ -62,10 +62,10 @@ class Session extends Thread implements Closeable {
             Result looserResult = new Result(expression.getResult(), Result.Title.LOOSE);
             gson.toJson(isCorrectAnswer ? winnerResult : looserResult, answeredPlayer);
             gson.toJson(isCorrectAnswer ? looserResult : winnerResult, notAnsweredPlayer);
+            close();
         } catch (IOException ioException) {
 
         }
-
     }
 
     @Override
