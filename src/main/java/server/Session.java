@@ -5,16 +5,14 @@ import model.Answer;
 import model.Expression;
 import model.Result;
 import org.jetbrains.annotations.NotNull;
+import util.ExpressionUtil;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.OptionalInt;
-import java.util.Random;
-import java.util.stream.IntStream;
 
 class Session extends Thread implements Closeable {
     @NotNull
-    private Gson gson = new Gson();
+    private final Gson gson = new Gson();
     @NotNull
     private final Socket firstPlayer, secondPlayer;
 
@@ -33,7 +31,7 @@ class Session extends Thread implements Closeable {
                 PrintWriter firstPlayerWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(firstPlayer.getOutputStream())), true);
                 PrintWriter secondPlayerWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(secondPlayer.getOutputStream())), true)
         ) {
-            Expression expression = generateExpression();
+            Expression expression = ExpressionUtil.generateExpression();
 
             sendAll(firstPlayerWriter, secondPlayerWriter, gson.toJson(expression));
 
@@ -77,21 +75,5 @@ class Session extends Thread implements Closeable {
     private static void sendAll(@NotNull PrintWriter firstWriter, @NotNull PrintWriter secondWriter, String message) {
         firstWriter.println(message);
         secondWriter.println(message);
-    }
-
-    private static Expression generateExpression() {
-        Random random = new Random();
-        OptionalInt optionalInt = random.ints(0, Expression.Operation.values().length)
-                .findFirst();
-        Expression.Operation operation = optionalInt.isPresent() ?
-                Expression.Operation.values()[optionalInt.getAsInt()] : Expression.Operation.ADDITION;
-
-        IntStream intStream = random.ints();
-        OptionalInt firstOptional = intStream.findAny();
-        OptionalInt secondOptional = intStream.findAny();
-        int a = firstOptional.isPresent() ? firstOptional.getAsInt() : 0;
-        int b = secondOptional.isPresent() ? secondOptional.getAsInt() : 0;
-
-        return new Expression(a, b, operation);
     }
 }
