@@ -30,19 +30,6 @@ public class Expression {
         };
     }
 
-    public int getA() {
-        return a;
-    }
-
-    public int getB() {
-        return b;
-    }
-
-    @NotNull
-    public Operation getOperation() {
-        return operation;
-    }
-
     @Override
     public String toString() {
         return String.format("%d %s %d = ", a, operation, b);

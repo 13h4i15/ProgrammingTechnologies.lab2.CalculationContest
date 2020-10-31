@@ -16,17 +16,35 @@ public class Result {
         this.resultValue = resultValue;
     }
 
-    public double getCorrectVale() {
-        return correctVale;
-    }
-
-    @NotNull
-    public Title getResultValue() {
-        return resultValue;
+    @Override
+    public String toString() {
+        return "Result: " + resultValue + " Value: " + correctVale;
     }
 
     public enum Title {
-        WIN,
-        LOOSE
+        WIN_RIGHT_ANSWER {
+            @Override
+            public String toString() {
+                return "Win! You were right!";
+            }
+        },
+        WIN_OPPONENT_LOST {
+            @Override
+            public String toString() {
+                return "Win! Your opponent has lost!";
+            }
+        },
+        LOOSE_WRONG_ANSWER {
+            @Override
+            public String toString() {
+                return "Loose! You enter wrong value!";
+            }
+        },
+        LOOSE_SECOND {
+            @Override
+            public String toString() {
+                return "Loose! You were second!";
+            }
+        }
     }
 }

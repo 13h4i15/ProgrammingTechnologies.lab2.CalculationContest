@@ -10,7 +10,7 @@ import util.ExpressionUtil;
 import java.io.*;
 import java.net.Socket;
 
-class Session extends Thread implements Closeable {
+class Session extends Thread {
     @NotNull
     private final Gson gson = new Gson();
     @NotNull
@@ -26,6 +26,7 @@ class Session extends Thread implements Closeable {
     public void run() {
         super.run();
         try (
+                firstPlayer; secondPlayer;
                 BufferedReader firstPlayerReader = new BufferedReader(new InputStreamReader(firstPlayer.getInputStream()));
                 BufferedReader secondPlayerReader = new BufferedReader(new InputStreamReader(secondPlayer.getInputStream()));
                 PrintWriter firstPlayerWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(firstPlayer.getOutputStream())), true);
@@ -37,15 +38,26 @@ class Session extends Thread implements Closeable {
 
             Answer answer = null;
             PrintWriter answeredPlayer = null, notAnsweredPlayer = null;
-            while (answer == null) {
+            Boolean isSecondReady = null;
+            while (answer == null || !isSecondReady) {
                 if (firstPlayerReader.ready()) {
-                    answer = gson.fromJson(firstPlayerReader, Answer.class);
-                    answeredPlayer = firstPlayerWriter;
-                    notAnsweredPlayer = secondPlayerWriter;
+                    if (isSecondReady == null) {
+                        answer = gson.fromJson(firstPlayerReader.readLine(), Answer.class);
+                        answeredPlayer = firstPlayerWriter;
+                        notAnsweredPlayer = secondPlayerWriter;
+                        isSecondReady = false;
+                    } else if (!isSecondReady) {
+                        isSecondReady = true;
+                    }
                 } else if (secondPlayerReader.ready()) {
-                    answer = gson.fromJson(secondPlayerReader, Answer.class);
-                    answeredPlayer = secondPlayerWriter;
-                    notAnsweredPlayer = firstPlayerWriter;
+                    if (isSecondReady == null) {
+                        answer = gson.fromJson(secondPlayerReader.readLine(), Answer.class);
+                        answeredPlayer = secondPlayerWriter;
+                        notAnsweredPlayer = firstPlayerWriter;
+                        isSecondReady = false;
+                    } else if (!isSecondReady) {
+                        isSecondReady = true;
+                    }
                 } else {
                     try {
                         Thread.sleep(1000);
@@ -56,20 +68,13 @@ class Session extends Thread implements Closeable {
 
             boolean isCorrectAnswer = answer.getValue() == expression.getResult();
 
-            Result winnerResult = new Result(expression.getResult(), Result.Title.WIN);
-            Result looserResult = new Result(expression.getResult(), Result.Title.LOOSE);
-            gson.toJson(isCorrectAnswer ? winnerResult : looserResult, answeredPlayer);
-            gson.toJson(isCorrectAnswer ? looserResult : winnerResult, notAnsweredPlayer);
-            close();
-        } catch (IOException ioException) {
+            Result winnerResult = new Result(expression.getResult(), isCorrectAnswer ? Result.Title.WIN_RIGHT_ANSWER : Result.Title.WIN_OPPONENT_LOST);
+            Result looserResult = new Result(expression.getResult(), isCorrectAnswer ? Result.Title.LOOSE_SECOND : Result.Title.LOOSE_WRONG_ANSWER);
+            answeredPlayer.println(gson.toJson(isCorrectAnswer ? winnerResult : looserResult));
+            notAnsweredPlayer.println(gson.toJson(isCorrectAnswer ? looserResult : winnerResult));
+        } catch (IOException ignore) {
 
         }
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (!firstPlayer.isClosed()) firstPlayer.close();
-        if (!secondPlayer.isClosed()) secondPlayer.close();
     }
 
     private static void sendAll(@NotNull PrintWriter firstWriter, @NotNull PrintWriter secondWriter, String message) {
