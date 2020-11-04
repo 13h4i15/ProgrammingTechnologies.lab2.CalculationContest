@@ -69,9 +69,9 @@ class Session extends Thread {
             boolean isCorrectAnswer = answer.getValue() == expression.getResult();
 
             Result winnerResult = new Result(expression.getResult(), isCorrectAnswer ? Result.Title.WIN_RIGHT_ANSWER : Result.Title.WIN_OPPONENT_LOST);
-            Result looserResult = new Result(expression.getResult(), isCorrectAnswer ? Result.Title.LOOSE_SECOND : Result.Title.LOOSE_WRONG_ANSWER);
-            answeredPlayer.println(gson.toJson(isCorrectAnswer ? winnerResult : looserResult));
-            notAnsweredPlayer.println(gson.toJson(isCorrectAnswer ? looserResult : winnerResult));
+            Result loserResult = new Result(expression.getResult(), isCorrectAnswer ? Result.Title.LOSE_SECOND : Result.Title.LOSE_WRONG_ANSWER);
+            answeredPlayer.println(gson.toJson(isCorrectAnswer ? winnerResult : loserResult));
+            notAnsweredPlayer.println(gson.toJson(isCorrectAnswer ? loserResult : winnerResult));
         } catch (IOException ignore) {
 
         }

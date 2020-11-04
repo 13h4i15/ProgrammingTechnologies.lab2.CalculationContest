@@ -34,16 +34,16 @@ public class Result {
                 return "Win! Your opponent has lost!";
             }
         },
-        LOOSE_WRONG_ANSWER {
+        LOSE_WRONG_ANSWER {
             @Override
             public String toString() {
-                return "Loose! You enter wrong value!";
+                return "Lose! You enter wrong value!";
             }
         },
-        LOOSE_SECOND {
+        LOSE_SECOND {
             @Override
             public String toString() {
-                return "Loose! You were second!";
+                return "Lose! You were second!";
             }
         }
     }
