@@ -1,6 +1,6 @@
 package server;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import model.Answer;
 import model.Expression;
 import model.Result;
@@ -12,7 +12,7 @@ import java.net.Socket;
 
 class Session extends Thread {
     @NotNull
-    private final Gson gson = new Gson();
+    private final ObjectMapper mapper = new ObjectMapper();
     @NotNull
     private final Socket firstPlayer, secondPlayer;
 
@@ -34,7 +34,7 @@ class Session extends Thread {
         ) {
             Expression expression = ExpressionUtil.generateExpression();
 
-            sendAll(firstPlayerWriter, secondPlayerWriter, gson.toJson(expression));
+            sendAll(firstPlayerWriter, secondPlayerWriter, mapper.writeValueAsString(expression));
 
             Answer answer = null;
             PrintWriter answeredPlayer = null, notAnsweredPlayer = null;
@@ -42,7 +42,7 @@ class Session extends Thread {
             while (answer == null || !isSecondReady) {
                 if (firstPlayerReader.ready()) {
                     if (isSecondReady == null) {
-                        answer = gson.fromJson(firstPlayerReader.readLine(), Answer.class);
+                        answer = mapper.readValue(firstPlayerReader.readLine(), Answer.class);
                         answeredPlayer = firstPlayerWriter;
                         notAnsweredPlayer = secondPlayerWriter;
                         isSecondReady = false;
@@ -51,7 +51,7 @@ class Session extends Thread {
                     }
                 } else if (secondPlayerReader.ready()) {
                     if (isSecondReady == null) {
-                        answer = gson.fromJson(secondPlayerReader.readLine(), Answer.class);
+                        answer = mapper.readValue(secondPlayerReader.readLine(), Answer.class);
                         answeredPlayer = secondPlayerWriter;
                         notAnsweredPlayer = firstPlayerWriter;
                         isSecondReady = false;
@@ -70,8 +70,8 @@ class Session extends Thread {
 
             Result winnerResult = new Result(expression.getResult(), isCorrectAnswer ? Result.Title.WIN_RIGHT_ANSWER : Result.Title.WIN_OPPONENT_LOST);
             Result loserResult = new Result(expression.getResult(), isCorrectAnswer ? Result.Title.LOSE_SECOND : Result.Title.LOSE_WRONG_ANSWER);
-            answeredPlayer.println(gson.toJson(isCorrectAnswer ? winnerResult : loserResult));
-            notAnsweredPlayer.println(gson.toJson(isCorrectAnswer ? loserResult : winnerResult));
+            answeredPlayer.println(mapper.writeValueAsString(isCorrectAnswer ? winnerResult : loserResult));
+            notAnsweredPlayer.println(mapper.writeValueAsString(isCorrectAnswer ? loserResult : winnerResult));
         } catch (IOException ignore) {
 
         }

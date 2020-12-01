@@ -1,17 +1,22 @@
 package model;
 
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
+@JsonAutoDetect
 public class Result {
-    @SerializedName("value")
+    @JsonProperty("value")
     private final double correctVale;
 
     @NotNull
-    @SerializedName("result")
+    @JsonProperty("result")
     private final Title resultValue;
 
-    public Result(double correctVale, @NotNull Title resultValue) {
+    @JsonCreator
+    public Result(@JsonProperty("value") double correctVale,
+                  @JsonProperty("result") @NotNull Title resultValue) {
         this.correctVale = correctVale;
         this.resultValue = resultValue;
     }

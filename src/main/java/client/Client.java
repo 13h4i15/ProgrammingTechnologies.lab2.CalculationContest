@@ -1,6 +1,6 @@
 package client;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import model.Answer;
 import model.Expression;
 import model.Result;
@@ -16,8 +16,8 @@ public class Client {
                  PrintWriter writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true)) {
                 System.out.println("Waiting for players to load");
 
-                Gson gson = new Gson();
-                Expression expression = gson.fromJson(reader.readLine(), Expression.class);
+                ObjectMapper mapper = new ObjectMapper();
+                Expression expression = mapper.readValue(reader.readLine(), Expression.class);
                 System.out.print(expression);
 
                 BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
@@ -34,11 +34,11 @@ public class Client {
                     }
                 }
 
-                writer.println(gson.toJson(new Answer(clientAnswer)));
+                writer.println(mapper.writeValueAsString(new Answer(clientAnswer)));
 
                 System.out.println("Waiting for the result");
 
-                Result result = gson.fromJson(reader.readLine(), Result.class);
+                Result result = mapper.readValue(reader.readLine(), Result.class);
 
                 System.out.println(result);
             }

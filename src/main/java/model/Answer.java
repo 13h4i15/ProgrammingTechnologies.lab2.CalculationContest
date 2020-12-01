@@ -1,13 +1,16 @@
 package model;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-import com.google.gson.annotations.SerializedName;
-
+@JsonAutoDetect
 public class Answer {
-    @SerializedName("answer")
+    @JsonProperty("answer")
     private final double value;
 
-    public Answer(double value) {
+    @JsonCreator
+    public Answer(@JsonProperty("answer") double value) {
         this.value = value;
     }
 

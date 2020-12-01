@@ -1,26 +1,33 @@
 package model;
 
-
-import com.google.gson.annotations.SerializedName;
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.jetbrains.annotations.NotNull;
 
+@JsonAutoDetect
 public class Expression {
-    @SerializedName("a")
+    @JsonProperty("a")
     private final int a;
 
-    @SerializedName("b")
+    @JsonProperty("b")
     private final int b;
 
     @NotNull
-    @SerializedName("operation")
+    @JsonProperty("operation")
     private final Operation operation;
 
-    public Expression(int a, int b, @NotNull Operation operation) {
+    @JsonCreator
+    public Expression(@JsonProperty("a") int a,
+                      @JsonProperty("b") int b,
+                      @JsonProperty("operation") @NotNull Operation operation) {
         this.a = a;
         this.b = b;
         this.operation = operation;
     }
 
+    @JsonIgnore
     public double getResult() {
         return switch (operation) {
             case ADDITION -> a + b;
