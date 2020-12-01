@@ -4,11 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import model.Answer;
 import model.Expression;
 import model.Result;
+import model.SessionFinal;
 import org.jetbrains.annotations.NotNull;
 import util.ExpressionUtil;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Calendar;
 
 class Session extends Thread {
     @NotNull
@@ -30,7 +32,9 @@ class Session extends Thread {
                 BufferedReader firstPlayerReader = new BufferedReader(new InputStreamReader(firstPlayer.getInputStream()));
                 BufferedReader secondPlayerReader = new BufferedReader(new InputStreamReader(secondPlayer.getInputStream()));
                 PrintWriter firstPlayerWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(firstPlayer.getOutputStream())), true);
-                PrintWriter secondPlayerWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(secondPlayer.getOutputStream())), true)
+                PrintWriter secondPlayerWriter = new PrintWriter(new BufferedWriter(new OutputStreamWriter(secondPlayer.getOutputStream())), true);
+
+                PrintWriter resultsWriter = new PrintWriter(new BufferedWriter(new FileWriter("results.txt", true)), true)
         ) {
             Expression expression = ExpressionUtil.generateExpression();
 
@@ -72,6 +76,13 @@ class Session extends Thread {
             Result loserResult = new Result(expression.getResult(), isCorrectAnswer ? Result.Title.LOSE_SECOND : Result.Title.LOSE_WRONG_ANSWER);
             answeredPlayer.println(mapper.writeValueAsString(isCorrectAnswer ? winnerResult : loserResult));
             notAnsweredPlayer.println(mapper.writeValueAsString(isCorrectAnswer ? loserResult : winnerResult));
+
+            String sessionResult = mapper.writeValueAsString(new SessionFinal(
+                    Calendar.getInstance().getTime(),
+                    answer.getValue(),
+                    expression.getResult()
+            ));
+            resultsWriter.println(sessionResult);
         } catch (IOException ignore) {
 
         }
