@@ -19,7 +19,6 @@ import java.util.List;
 
 public class SessionFinalTest {
 
-
     @Test
     public void sessionFinalSave() throws IOException, ProcessingException {
         List<Boolean> isLineCorrect = new ArrayList<>();
